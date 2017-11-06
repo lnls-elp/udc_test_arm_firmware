@@ -267,6 +267,22 @@ static struct bsmp_func testuartping_func = {
     .info.output_size = 1,       // command_ack
 };
 
+//*****************************************************************************
+//                  Uart Ping BSMP Function
+//*****************************************************************************
+// OK
+uint8_t TestBkpI2C (uint8_t *input, uint8_t *output)
+{
+    *output = TestI2cBkpSignal(input[0], input[1]);
+    return *output;
+}
+
+static struct bsmp_func testbkpi2c_func = {
+    .func_p           = TestBkpI2C,
+    .info.input_size  = 2,       // Nothing is read from the input parameter
+    .info.output_size = 1,       // command_ack
+};
+
 
 //*****************************************************************************
 //                          BSMP Initialization
@@ -295,6 +311,7 @@ BSMPInit(void)
     bsmp_register_function(&bsmp, &testrs485_func);                     // Function ID 10
     bsmp_register_function(&bsmp, &testloopback_func);                  // Function ID 11
     bsmp_register_function(&bsmp, &testuartping_func);                  // Function ID 12
+    bsmp_register_function(&bsmp, &testbkpi2c_func);                    // Function ID 13
 
 
     //*****************************************************************************
@@ -306,223 +323,6 @@ BSMPprocess(struct bsmp_raw_packet *recv_packet, struct bsmp_raw_packet *send_pa
     bsmp_process_packet(&bsmp, recv_packet, send_packet);
 
 }
-
-
-
-
-
-
-/*
-
-//*****************************************************************************
-// 						TestUsbUart BSMP Function
-//*****************************************************************************
-uint8_t TestUsbUart (uint8_t *input, uint8_t *output)
-{
-	*output = input[0] + 1;
-	return *output;
-}
-
-static struct bsmp_func usbuart_func = {
-    .func_p 		  = TestUsbUart,
-    .info.input_size  = 1,       // Nothing is read from the input parameter
-    .info.output_size = 1,       // command_ack
-};
-
-//*****************************************************************************
-// 						WriteIPAddress BSMP Function
-//*****************************************************************************
-uint8_t WriteIPAddress (uint8_t *input, uint8_t *output)
-{
-	*output = input[0] + 1;
-	IPAddressWrite(input[0],input[1],input[2],input[3]);
-	return *output;
-}
-
-static struct bsmp_func writeipaddress_func = {
-    .func_p 		  = WriteIPAddress,
-    .info.input_size  = 4,       // Nothing is read from the input parameter
-    .info.output_size = 1,       // command_ack
-};
-
-//*****************************************************************************
-// 						WriteIPMask BSMP Function
-//*****************************************************************************
-uint8_t WriteIPMask (uint8_t *input, uint8_t *output)
-{
-	*output = input[0] + 1;
-	IPMaskWrite(input[0],input[1],input[2],input[3]);
-	return *output;
-}
-
-static struct bsmp_func writeipmask_func = {
-    .func_p 		  = WriteIPMask,
-    .info.input_size  = 4,       // Nothing is read from the input parameter
-    .info.output_size = 1,       // command_ack
-};
-
-//*****************************************************************************
-// 						RS485Test BSMP Function
-//*****************************************************************************
-uint8_t RS485Test (uint8_t *input, uint8_t *output)
-{
-		long lChar;
-		unsigned char ucChar;
-		int i = 0;
-		char* sent_message;
-		int len = rand()%10 + 1;
-		random_string(sent_message, len);
-
-		char* recv_message;
-
-		UARTSendString(sent_message, RS485_UART_BASE);
-
-		while(!UARTSpaceAvail(RS485_UART_BASE));
-		// Send Byte
-		UARTCharPut(RS485_UART_BASE, '\n');
-
-		while(!UARTSpaceAvail(RS485_UART_BASE));
-		// Send Byte
-		UARTCharPut(RS485_UART_BASE, '\r');
-
-		while(UARTBusy(RS485_UART_BASE));
-		while(UARTCharsAvail(RS485_BKP_UART_BASE)){
-			lChar = UARTCharGet(RS485_BKP_UART_BASE);
-			if(!(lChar & ~0xFF))
-			{
-				ucChar = (unsigned char)(lChar & 0xFF);
-				recv_message[i++] = ucChar;
-			}
-		}
-
-		UARTSendString(recv_message, RS485_UART_BASE);
-
-		while(UARTBusy(RS485_UART_BASE));
-
-		//ReadBufferRS485BKP(recv_message);
-
-		*output = 8;
-		if(strcmp(sent_message,"") && strcmp(recv_message,"")){
-			if(strcmp(sent_message, recv_message)){
-				// strings nao sao vazias mas sao diferentes
-				*output = 2;
-			}
-			else{
-				// strings nao sao vazias e sao iguais
-				*output = 3;
-			}
-		}
-		else{
-			// pelo menos uma das strings eh vazia
-			if(!strcmp(sent_message, "")){
-				*output = 4;
-			}
-			else if(!strcmp(recv_message, "")){
-				*output = 5;
-			}
-		}
-
-		return *output;
-}
-
-static struct bsmp_func rs485_func = {
-    .func_p 		  = RS485Test,
-    .info.input_size  = 0,       // Nothing is read from the input parameter
-    .info.output_size = 1,       // command_ack
-};
-
-//*****************************************************************************
-// 						TemperatureTest BSMP Function
-//*****************************************************************************
-uint8_t TemperatureTest (uint8_t *input, uint8_t *output)
-{
-	float temp = 0.1;
-	ReadTemperature();
-	temp = TemperatureCelsius();
-	if(temp > 9.9 && temp < 49.9){
-		*output = 2;
-	}
-	else if(temp < 9.9){
-		*output = 3;
-	}
-	else if(temp > 49.9){
-		*output = 4;
-	}
-	return *output;
-}
-
-static struct bsmp_func temperature_func = {
-    .func_p 		  = TemperatureTest,
-    .info.input_size  = 0,       // Nothing is read from the input parameter
-    .info.output_size = 1,       // command_ack
-};
-
-//*****************************************************************************
-// 						RTCTest BSMP Function
-//*****************************************************************************
-uint8_t RTClkTest (uint8_t *input, uint8_t *output)
-{
-	uint64_t	datahour1, datahour2;
-
-	RTCWriteDataHour(0x30, 0x25, 0x14, 0x02, 0x23, 0x05, 0x17);
-	RTCReadDataHour();
-	datahour1 = DataHourRead();
-
-	RTCWriteDataHour(0x45, 0x53, 0x11, 0x05, 0x13, 0x11, 0x15);
-	RTCReadDataHour();
-	datahour2 = DataHourRead();
-
-
-
-	if(datahour1 == 0x17052302142530 && datahour2 == 0x15111305115345){
-		*output = 3;
-	}
-	else{
-		*output = 4;
-	}
-	return *output;
-}
-
-static struct bsmp_func rtclk_func = {
-    .func_p 		  = RTClkTest,
-    .info.input_size  = 0,       // Nothing is read from the input parameter
-    .info.output_size = 1,       // command_ack
-};
-
-
-//*****************************************************************************
-// 						EepromTest BSMP Function
-//*****************************************************************************
-uint8_t EepromTest (uint8_t *input, uint8_t *output)
-{
-	uint16_t address = 0x0240;
-	uint8_t data = 0;
-	data = EepromRead(address);
-	uint8_t data_ok = 0xAC;
-	uint8_t data_fail = 0x36;
-	EepromWrite(address, data_ok);
-	data = EepromRead(address);
-	EepromDummyWrite(address, data_fail);
-	data = EepromRead(address);
-	if(data==data_ok){
-		*output = 3;
-	}
-	else if(data==data_fail){
-		*output = 4;
-	}
-	else{
-		*output = 5;
-	}
-	return *output;
-}
-
-static struct bsmp_func eeprom_func = {
-    .func_p 		  = EepromTest,
-    .info.input_size  = 0,       // Nothing is read from the input parameter
-    .info.output_size = 1,       // command_ack
-};
-
-*/
 
 
 

@@ -25,6 +25,7 @@
 #include "../communication_drivers/i2c_onboard/eeprom.h"
 #include "../communication_drivers/i2c_onboard/temp_sensor.h"
 #include "../communication_drivers/i2c_onboard/exio.h"
+#include "../communication_drivers/i2c_offboard_isolated/i2c_offboard_isolated.h"
 #include "../communication_drivers/rs485/rs485.h"
 #include "../communication_drivers/rs485_bkp/rs485_bkp.h"
 #include "../system_task/system_task.h"
@@ -37,6 +38,8 @@
 #include "jiga.h"
 
 #define I2C_SLV_ADDR_EEPROM	0x50 // Endereço 7 bits
+
+#define I2C_SLV_ADDR_BKP    0x00 // TODO: See real address
 
 #define	SINGLE_ADDRESS	0x01
 #define	DOUBLE_ADDRESS	0x02
@@ -275,7 +278,6 @@ uint8_t
 IsoPowerSupplyLoopBackTest(void)
 {
     uint8_t gpdi_sts = 0;
-    unsigned long ulLoop;
 
     // Read Isolated Power Supply Status
     gpdi_sts = DcdcSts();
@@ -286,30 +288,6 @@ IsoPowerSupplyLoopBackTest(void)
         iso_ps_lb_result = 0;
     }
     else iso_ps_lb_result = 1; // Error
-
-    /*
-    // If 0 then continue the test procedure
-    if(gpdi_sts == 0)
-    {
-        // Turn on dcdc converter
-        DcdcPwrCtrl(1);
-
-        for (ulLoop=0;ulLoop<100000;ulLoop++){}; // wait 5ms
-
-        // Read Isolated Power Supply Status
-        gpdi_sts = DcdcSts();
-
-        // If 1 then continue the test procedure
-        if(gpdi_sts == 1)
-        {
-            iso_ps_lb_result = 0;
-        }
-        else iso_ps_lb_result = 1; // Error
-    }
-    else iso_ps_lb_result = 1; // Error
-
-    AdcpInit();
-    */
 
     return 0;
 }
@@ -339,6 +317,7 @@ volatile uint8_t adcp_test_channel = 0;
 uint8_t
 TestAdcpRange(uint8_t function_type, uint8_t channel_number)
 {
+    uint8_t result;
     // Execute Test Routines
     if(function_type == 0)
     {
@@ -353,31 +332,33 @@ TestAdcpRange(uint8_t function_type, uint8_t channel_number)
         switch(channel_number)
         {
         case 0x01:
-            return adcp_1_result;
+            result = adcp_1_result;
             break;
         case 0x02:
-            return adcp_2_result;
+            result = adcp_2_result;
             break;
         case 0x03:
-            return adcp_3_result;
+            result = adcp_3_result;
             break;
         case 0x04:
-            return adcp_4_result;
+            result = adcp_4_result;
             break;
         case 0x05:
-            return adcp_5_result;
+            result = adcp_5_result;
             break;
         case 0x06:
-            return adcp_6_result;
+            result = adcp_6_result;
             break;
         case 0x07:
-            return adcp_7_result;
+            result = adcp_7_result;
             break;
         case 0x08:
-            return adcp_8_result;
+            result = adcp_8_result;
             break;
         }
     }
+
+    return result;
 }
 
 uint8_t
@@ -769,7 +750,6 @@ TestRs485Loop(uint8_t function_type)
     // Put RS485_M3 on reception mode
     if(function_type == 0)return TaskSetNew(RS485_TEST);
     else if(function_type == 1)return rs485_test_result;
-
 }
 
 uint8_t
@@ -977,6 +957,7 @@ volatile uint8_t loopback_32_result = 0;
 uint8_t
 TestLoopBackSignal(uint8_t function_type, uint8_t channel_number)
 {
+    uint8_t result = 0;
     // Execute Test Routines
     if(function_type == 0)
     {
@@ -991,103 +972,105 @@ TestLoopBackSignal(uint8_t function_type, uint8_t channel_number)
         switch(channel_number)
         {
         case LOOPBACK_1:
-            return loopback_1_result;
+            result = loopback_1_result;
             break;
         case LOOPBACK_2:
-            return loopback_2_result;
+            result = loopback_2_result;
             break;
         case LOOPBACK_3:
-            return loopback_3_result;
+            result = loopback_3_result;
             break;
         case LOOPBACK_4:
-            return loopback_4_result;
+            result = loopback_4_result;
             break;
         case LOOPBACK_5:
-            return loopback_5_result;
+            result = loopback_5_result;
             break;
         case LOOPBACK_6:
-            return loopback_6_result;
+            result = loopback_6_result;
             break;
         case LOOPBACK_7:
-            return loopback_7_result;
+            result = loopback_7_result;
             break;
         case LOOPBACK_8:
-            return loopback_8_result;
+            result = loopback_8_result;
             break;
         case LOOPBACK_9:
-            return loopback_9_result;
+            result = loopback_9_result;
             break;
         case LOOPBACK_10:
-            return loopback_10_result;
+            result = loopback_10_result;
             break;
         case LOOPBACK_11:
-            return loopback_11_result;
+            result = loopback_11_result;
             break;
         case LOOPBACK_12:
-            return loopback_12_result;
+            result = loopback_12_result;
             break;
         case LOOPBACK_13:
-            return loopback_13_result;
+            result = loopback_13_result;
             break;
         case LOOPBACK_14:
-            return loopback_14_result;
+            result = loopback_14_result;
             break;
         case LOOPBACK_15:
-            return loopback_15_result;
+            result = loopback_15_result;
             break;
         case LOOPBACK_16:
-            return loopback_16_result;
+            result = loopback_16_result;
             break;
         case LOOPBACK_17:
-            return loopback_17_result;
+            result = loopback_17_result;
             break;
         case LOOPBACK_18:
-            return loopback_18_result;
+            result = loopback_18_result;
             break;
         case LOOPBACK_19:
-            return loopback_19_result;
+            result = loopback_19_result;
             break;
         case LOOPBACK_20:
-            return loopback_20_result;
+            result = loopback_20_result;
             break;
         case LOOPBACK_21:
-            return loopback_21_result;
+            result = loopback_21_result;
             break;
         case LOOPBACK_22:
-            return loopback_22_result;
+            result = loopback_22_result;
             break;
         case LOOPBACK_23:
-            return loopback_23_result;
+            result = loopback_23_result;
             break;
         case LOOPBACK_24:
-            return loopback_24_result;
+            result = loopback_24_result;
             break;
         case LOOPBACK_25:
-            return loopback_25_result;
+            result = loopback_25_result;
             break;
         case LOOPBACK_26:
-            return loopback_26_result;
+            result = loopback_26_result;
             break;
         case LOOPBACK_27:
-            return loopback_27_result;
+            result = loopback_27_result;
             break;
         case LOOPBACK_28:
-            return loopback_28_result;
+            result = loopback_28_result;
             break;
         case LOOPBACK_29:
-            return loopback_29_result;
+            result = loopback_29_result;
             break;
         case LOOPBACK_30:
-            return loopback_30_result;
+            result = loopback_30_result;
             break;
         case LOOPBACK_31:
-            return loopback_31_result;
+            result = loopback_31_result;
             break;
         case LOOPBACK_32:
-            return loopback_32_result;
+            result = loopback_32_result;
             break;
         }
     }
+
+    return result;
 }
 
 
@@ -2225,5 +2208,27 @@ LoopBackFunctionTest(void)
 
 //***********************************************************************************
 
+uint8_t i2c_bkp_result;
+volatile uint8_t read_register;
 
+uint8_t TestI2cBkpSignal(uint8_t function_type, uint8_t register_address)
+{
+    uint8_t result = 0;
 
+    if (function_type == 0)
+    {
+        read_register = register_address;
+        TaskSetNew(BKP_I2C_TEST);
+        result =  0;
+    }
+    else if (function_type == 1)
+    {
+        result = i2c_bkp_result;
+    }
+    return result;
+}
+
+void TestI2cBkpRoutine()
+{
+    ReadI2COffboardIsolated(I2C_SLV_ADDR_BKP, read_register, 1, &i2c_bkp_result);
+}

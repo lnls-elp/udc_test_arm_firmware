@@ -41,6 +41,9 @@ extern uint8_t TestAdcpRange(uint8_t function_type, uint8_t channel_number);
 extern uint8_t Rs485Loopbacktest(void);
 extern uint8_t TestRs485Loop(uint8_t function_type);
 
+extern uint8_t TestI2cBkpSignal(uint8_t function_type, uint8_t register_address);
+extern void TestI2cBkpRoutine();
+
 /*
 void jiga_main();
 

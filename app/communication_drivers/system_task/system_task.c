@@ -65,6 +65,7 @@ volatile bool RS485_TEST_REQUEST = 0;
 volatile bool FLASH_TEST_REQUEST = 0;
 volatile bool RAM_TEST_REQUEST = 0;
 volatile bool TEMP_SENSE_TEST_REQUEST = 0;
+volatile bool BKP_I2C_TEST_RESQUEST = 0;
 
 uint8_t
 TaskSetNew(uint8_t TaskNum)
@@ -156,7 +157,10 @@ TaskSetNew(uint8_t TaskNum)
 	    break;
 	case TEMP_SENSE_TEST:
 	    TEMP_SENSE_TEST_REQUEST = 1;
-
+	    break;
+	case BKP_I2C_TEST:
+	    BKP_I2C_TEST_RESQUEST = 1;
+	    break;
 	default:
 
 		break;
@@ -332,6 +336,11 @@ TaskCheck(void)
 	{
 	    TEMP_SENSE_TEST_REQUEST = 0;
 	    TestTempSenseRoutine();
+	}
+	else if(BKP_I2C_TEST_RESQUEST)
+	{
+	    BKP_I2C_TEST_RESQUEST = 0;
+	    TestI2cBkpRoutine();
 	}
 
 	return 0;

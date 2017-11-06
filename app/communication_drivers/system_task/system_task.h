@@ -37,7 +37,8 @@ typedef enum
 	RS485_TEST,
 	FLASH_TEST,
 	RAM_TEST,
-	TEMP_SENSE_TEST
+	TEMP_SENSE_TEST,
+	BKP_I2C_TEST
 }eTask;
 
 extern uint8_t TaskCheck(void);

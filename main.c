@@ -142,9 +142,6 @@ int main(void) {
 	// Enable processor interrupts.
 	IntMasterEnable();
 
-	long lChar;
-	unsigned char ucChar;
-
 	// Write 1 to GPIO
     //GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_4, ON); //Turn on
 
