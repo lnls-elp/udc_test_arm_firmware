@@ -40,32 +40,21 @@
 #include "app/communication_drivers/ihm/ihm.h"
 #include "app/communication_drivers/ethernet/ethernet_uip.h"
 #include "app/communication_drivers/can/can_bkp.h"
-
 #include "app/communication_drivers/parameters/communication/communication_par.h"
-
 #include "app/communication_drivers/usb_device/superv_cmd.h"
-
 #include "app/communication_drivers/i2c_onboard/i2c_onboard.h"
+#include "app/communication_drivers/i2c_offboard_isolated/i2c_offboard_isolated.h"
 #include "app/communication_drivers/i2c_onboard/rtc.h"
 #include "app/communication_drivers/i2c_onboard/eeprom.h"
 #include "app/communication_drivers/i2c_onboard/exio.h"
-
 #include "app/communication_drivers/adcp/adcp.h"
-
 #include "app/communication_drivers/timer/timer.h"
-
 #include "app/communication_drivers/system_task/system_task.h"
-
 #include "app/communication_drivers/flash/flash_mem.h"
-
 #include "app/communication_drivers/flash/flash_mem.h"
-
 #include "app/communication_drivers/parameters/system/system.h"
-
 #include "app/communication_drivers/ipc/ipc_lib.h"
-
 #include "app/communication_drivers/shared_memory/structs.h"
-
 #include "app/communication_drivers/jiga/jiga.h"
 
 #include <stdint.h>
@@ -148,19 +137,21 @@ int main(void) {
 	while(1)
 	{
 		for (ulLoop=0;ulLoop<1000;ulLoop++)
-			{
-				//RS485ProcessData();
-				EthernetProcessData();
-				//DisplayProcessData();
-				//RS485BKPProcessData();
-				//MensagUsb();
-				//CanCheck();
+		{
+		    //RS485ProcessData();
+			EthernetProcessData();
+			//DisplayProcessData();
+			//RS485BKPProcessData();
+			//MensagUsb();
+			//CanCheck();
 
-				TaskCheck();
-			}
+			TaskCheck();
 
+		}
 		IPC_MtoC_Msg.PSModule.LocalRemote.u16 = LocRemUpdate();
 
+		//WriteI2COffboardIsolated(0b0101000, 2, i2c_bkp_result);
+		//ReadI2COffboardIsolated(0b0101000, SINGLE_ADDRESS, 2, i2c_bkp_result);
 	}
 
 

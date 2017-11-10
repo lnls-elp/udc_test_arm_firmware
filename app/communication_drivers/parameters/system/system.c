@@ -121,6 +121,8 @@ SystemConfig(void)
 {
 	InitI2COnboard();
 
+	InitI2COffboardIsolated();
+
 	//TestEepromMemory();
 
 	ExIOInit();

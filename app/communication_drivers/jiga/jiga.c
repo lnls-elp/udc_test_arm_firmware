@@ -39,7 +39,7 @@
 
 #define I2C_SLV_ADDR_EEPROM	0x50 // Endereço 7 bits
 
-#define I2C_SLV_ADDR_BKP    0x00 // TODO: See real address
+#define I2C_SLV_ADDR_BKP    0b0101000
 
 #define	SINGLE_ADDRESS	0x01
 #define	DOUBLE_ADDRESS	0x02
@@ -77,6 +77,8 @@
 #define LOOPBACK_30     0x1E
 #define LOOPBACK_31     0x1F
 #define LOOPBACK_32     0x20
+
+volatile uint8_t teste = 0;
 
 //***********************************************************************************
 
@@ -2208,27 +2210,32 @@ LoopBackFunctionTest(void)
 
 //***********************************************************************************
 
-uint8_t i2c_bkp_result;
-volatile uint8_t read_register;
+uint8_t i2c_bkp_result[2];
+volatile uint8_t write_val;
 
-uint8_t TestI2cBkpSignal(uint8_t function_type, uint8_t register_address)
+uint8_t TestI2cBkpSignal(uint8_t function_type, uint8_t val)
 {
     uint8_t result = 0;
 
     if (function_type == 0)
     {
-        read_register = register_address;
+        write_val = val;
         TaskSetNew(BKP_I2C_TEST);
         result =  0;
     }
     else if (function_type == 1)
     {
-        result = i2c_bkp_result;
+        result = write_val;
     }
     return result;
 }
 
 void TestI2cBkpRoutine()
 {
-    ReadI2COffboardIsolated(I2C_SLV_ADDR_BKP, read_register, 1, &i2c_bkp_result);
+    //i2c_bkp_result[0] = 0x02;
+    i2c_bkp_result[0] = 0x00;
+    i2c_bkp_result[1] = write_val;
+
+    teste++;
+    WriteI2COffboardIsolated(0b0101000, 2, i2c_bkp_result);
 }

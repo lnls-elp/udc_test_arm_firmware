@@ -104,5 +104,3 @@ InitI2COffboardIsolated(void)
 	I2CMasterEnable(I2C_OFFBOARD_ISO_MASTER_BASE);
 
 }
-
-
